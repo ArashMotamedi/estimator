@@ -8,7 +8,7 @@ export function App() {
   const [capacityModelRatio, setCapacityModelRatio] = useState(.7);
   const [objectTtlYears, setObjectTtlYears] = useState(10);
   const [cacheRatio, setCacheRatio] = useState(.2);
-  const [cacheTtlYears, setCacheTtlYears] = useState(1);
+  const [cacheTtlDays, setCacheTtlDays] = useState(1);
 
   function count(timeUnit: ITimeUnitKey) {
     return Math.round(countPerYear / timeUnits[timeUnit]);
@@ -62,8 +62,8 @@ export function App() {
                 <td><input value={Math.round(cacheRatio * 100)} onChange={e => { e.preventDefault(); Number.isSafeInteger(Number(e.target.value)) && setCacheRatio(Number(e.target.value) / 100) }} /></td>
               </tr>
               <tr>
-                <td>Cache TTL (years)</td>
-                <td><input value={cacheTtlYears} onChange={e => { e.preventDefault(); Number.isSafeInteger(Number(e.target.value)) && setCacheTtlYears(Number(e.target.value)) }} /></td>
+                <td>Cache TTL (days)</td>
+                <td><input value={cacheTtlDays} onChange={e => { e.preventDefault(); Number.isSafeInteger(Number(e.target.value)) && setCacheTtlDays(Number(e.target.value)) }} /></td>
               </tr>
             </tbody>
           </table>
@@ -96,7 +96,7 @@ export function App() {
             <td><Input type="count" value={count("months")} onChange={setCount("months")} /></td>
             <td><Input type="count" value={count("years")} onChange={setCount("years")} /></td>
             <td>{easyNumber(count("years") * objectTtlYears)}</td>
-            <td>{easyNumber(count("years") * cacheRatio * cacheTtlYears)}</td>
+            <td>{easyNumber(count("days") * cacheRatio * cacheTtlDays)}</td>
           </tr>
           <tr>
             <td>Reads</td>
@@ -118,7 +118,7 @@ export function App() {
             <td>{easyBytes(count("months") * sizePerObject)}</td>
             <td>{easyBytes(count("years") * sizePerObject)}</td>
             <td>{easyBytes(count("years") * sizePerObject * objectTtlYears)}</td>
-            <td>{easyBytes(count("years") * sizePerObject * cacheRatio * cacheTtlYears)}</td>
+            <td>{easyBytes(count("days") * sizePerObject * cacheRatio * cacheTtlDays)}</td>
           </tr>
           <tr>
             <td>Download</td>
