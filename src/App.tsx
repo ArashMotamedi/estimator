@@ -26,8 +26,12 @@ export function App() {
 
   return (
     <div>
+      <div style={{marginBottom: 20}}>
+        <h1 style={{ marginBottom: 5 }}>System Design Estimator</h1>
+        <a href="https://github.com/arashmotamedi/estimator">https://github.com/arashmotamedi/estimator</a>
+      </div>
       <div style={{ display: "flex" }}>
-        <div style={{ marginRight: 20}}>
+        <div style={{ marginRight: 20 }}>
           <table>
             <tbody>
               <tr>
