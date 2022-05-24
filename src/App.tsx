@@ -28,8 +28,7 @@ export function App() {
     <div>
       <div style={{marginBottom: 20}}>
         <h1 style={{ marginBottom: 5 }}>System Design Estimator</h1>
-        <a href="https://systemestimator.com">https://systemestimator.com</a><br />
-        <a href="https://github.com/arashmotamedi/estimator">https://github.com/arashmotamedi/estimator</a>
+        <a href="https://systemestimator.com">systemestimator.com</a> • <a href="https://github.com/arashmotamedi/estimator">github.com/arashmotamedi/estimator</a>
       </div>
       <div style={{ display: "flex" }}>
         <div style={{ marginRight: 20 }}>
