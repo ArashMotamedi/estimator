@@ -13,7 +13,7 @@ code {
 }
 
 
-input {
+input, textarea, select {
   font: inherit;
   width: 100px;
   border: none;
@@ -40,4 +40,12 @@ thead {
 td:first-child {
   font-weight: 500;
   padding-right: 20px;
+}
+
+pre {
+  font-family: inherit;
+  font-size: inherit;
+  white-space: pre-wrap;
+  margin: 0;
+  padding: 0;
 }
