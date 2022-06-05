@@ -1,13 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { convertTimeUnit, easyBytes, easyNumber, ITimeUnitKey, timeUnits } from "./Capacity";
+import TextareaAutosize from "react-textarea-autosize";
+export interface IResult {
+    type: "number" | "bytes", value: number
+}
 
-const commentsPattern = /[a-z]+/g;
-export function Calculator() {
-    const sizer = useRef<HTMLDivElement>(null);
+const commentsPattern = /[a-z:]+/ig;
+export function Calculator(props: {
+    results: { title: string, result: IResult | undefined, timeDenominator: ITimeUnitKey | undefined }[]
+    close: () => void,
+    update: (state: { title: string, result: IResult | undefined, timeDenominator: ITimeUnitKey | undefined }) => void;
+}) {
+    const { results } = props;
+    const [title, setTitle] = useState("");
     const [expression, setExpression] = useState("");
     const [timeDenominator, setTimeDenominator] = useState<ITimeUnitKey>();
     const [result, setResult] = useState<{ type: "number" | "bytes", value: number }>();
     const easy = result?.type === "bytes" ? easyBytes : easyNumber;
+    useEffect(() => {
+        props.update({ title, timeDenominator, result })
+    }, [title, timeDenominator, result]);
     useEffect(() => {
         if (expression === "") {
             setResult(undefined);
@@ -17,17 +29,21 @@ export function Calculator() {
         let expandedExpr = expression.replaceAll(/\s/g, " ");
         let isBytes = false;
 
+        results.forEach(result => {
+            expandedExpr = expandedExpr.replaceAll(`{${result.title}}`, `${result.result?.value}`);
+        });
+
         let match: RegExpMatchArray | null = null;
-        while (match = expandedExpr.match(/([0-9]+\s*(kb|mb|gb|tb|pb|k|m|b))($|[^a-z])/)!) {
+        while (match = expandedExpr.match(/([0-9]+\s*(bytes|kb|mb|gb|tb|pb|k|m|b))($|[^a-z])/i)!) {
             const startIndex = match.index!;
-            isBytes = isBytes || ["kb", "mb", "gb", "tb", "pb"].some(size => (match![1]).endsWith(size));
-            console.log({ startIndex, match: match[1] })
+            isBytes = isBytes || ["bytes", "kb", "mb", "gb", "tb", "pb"].some(size => (match![1]).endsWith(size));
 
             expandedExpr = expandedExpr.substring(0, startIndex) +
                 match[1]
                     .replaceAll(" ", "")
                     .replaceAll("\n", " ")
                     .replaceAll("\r", " ")
+                    .replaceAll("bytes", " ")
                     .replaceAll("kb", "000")
                     .replaceAll("mb", "000000")
                     .replaceAll("gb", "000000000")
@@ -37,8 +53,6 @@ export function Calculator() {
                     .replaceAll("m", "000000")
                     .replaceAll("b", "000000000") +
                 match[3] + expandedExpr.substring(startIndex + match[0].length);
-
-            console.log(expandedExpr)
         }
 
         expandedExpr = expandedExpr
@@ -54,27 +68,36 @@ export function Calculator() {
         catch (e) {
             setResult(undefined);
         }
-    }, [expression]);
+    }, [expression, results]);
 
-    return <div>
-        <div ref={sizer} style={{ overflow: "hidden", width: 400, position: "absolute", visibility: "hidden", pointerEvents: "none" }}><pre>{expression.split("\n").map(line => line === "" ? " " : line).join("\n") || <> </>}</pre></div>
-        <textarea style={{ width: 400, height: (sizer.current?.clientHeight ?? 0) + 20 }} value={expression} onChange={e => { e.preventDefault(); setExpression(e.target.value) }} />
-        <div style={{marginBottom: 10}}>
-            <select style={{ width: 150 }} value={timeDenominator} onChange={e => setTimeDenominator(e.target.value as any)}>
-                <option value={undefined} />
+    return <div style={{ width: 350, padding: 10, background: "#00000005", borderRadius: 5, boxShadow: "0 0 25px -5px #0003" }}>
+        <div style={{ display: "flex" }}>
+            <input style={{ width: "100%" }} placeholder="title" value={title} onChange={e => { e.preventDefault(); setTitle(e.target.value) }} />
+            <button style={{ padding: "0px 10px" }} onClick={props.close}>x</button>
+        </div>
+        <TextareaAutosize
+            placeholder="expression"
+            style={{ width: "100%", resize: "none" }}
+            value={expression}
+            onChange={e => { e.preventDefault(); setExpression(e.target.value) }} />
+        <div style={{ marginBottom: 10 }}>
+            <select style={{ width: "100%" }}
+                value={timeDenominator} onChange={e => setTimeDenominator(e.target.value as any)}>
+                <option key={"undefined"} value={undefined}></option>
                 {Object.keys(timeUnits).map(unit => <option key={unit} value={unit}>per {unit}</option>)}
             </select>
         </div>
-        {result && !timeDenominator && (<div>
+        {result?.value !== undefined && !timeDenominator && (<div>
             {easy(result.value)}
         </div>
         )}
-        {result && timeDenominator && <> {
-            Object.keys(timeUnits).map(key => <div key={key}>
-                {easy(convertTimeUnit(result.value, timeDenominator, key as any))} per {key}
+        {result?.value !== undefined && timeDenominator && <div style={{ display: "flex", flexWrap: "wrap" }}> {
+            Object.keys(timeUnits).map(key => <div key={key} style={{ marginRight: 10 }}>
+                {easy(convertTimeUnit(result.value, timeDenominator, key as any))}
+                <span style={{ color: "#0006" }}>/{key === "month" ? "mo" : key.substring(0, 1)}</span>
             </div>)
         }
-        </>}
+        </div>}
     </div>
 
 }

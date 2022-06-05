@@ -3,9 +3,11 @@ import { createUseStyles } from 'react-jss';
 import './App.css';
 import { Calculator } from './Calculator';
 import { Capacity } from './Capacity';
+import { Link, useParams } from "react-router-dom";
+import { Calculators } from './Calculators';
 
 export function App() {
-  const [mode, setMode] = useState<"calculator" | "capacity">("capacity");
+  const { mode } = useParams<{ mode: "capacity" | "calculator" }>();
   const styles = useStyles();
   return <div>
     <div style={{ marginBottom: 20 }}>
@@ -13,11 +15,16 @@ export function App() {
       <a href="https://systemestimator.com">systemestimator.com</a> • <a href="https://github.com/arashmotamedi/estimator">github.com/arashmotamedi/estimator</a>
     </div>
     <div className={styles.tabContainer}>
-      <div className={classNames(styles.tabButton, [styles.active, mode === "capacity"])} onClick={() => setMode("capacity")}>Capacity</div>
-      <div className={classNames(styles.tabButton, [styles.active, mode === "calculator"])} onClick={() => setMode("calculator")}>Calculator</div>
+      <Link to="/capacity" style={{ color: "inherit", textDecoration: "none" }}>
+        <div className={classNames(styles.tabButton, [styles.active, mode === "capacity"])}>Capacity</div>
+      </Link>
+      <Link to="/calculator" style={{ color: "inherit", textDecoration: "none" }}>
+        <div className={classNames(styles.tabButton, [styles.active, mode === "calculator"])}>Calculator</div>
+      </Link>
     </div>
     <div>
-      <div style={{ display: mode === "calculator" ? "unset" : "none" }}><Calculator /></div>
+
+      <div style={{ display: mode === "calculator" ? "unset" : "none" }}><Calculators /></div>
       <div style={{ display: mode === "capacity" ? "unset" : "none" }}><Capacity /></div>
     </div>
   </div>
@@ -32,7 +39,7 @@ const useStyles = createUseStyles({
     padding: 10,
     cursor: "pointer",
     background: "#00000008",
-    borderRadius: "2px",
+    borderRadius: 3,
     marginRight: 5,
     "&:hover": {
       background: "#0001",
